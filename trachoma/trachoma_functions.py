@@ -110,7 +110,7 @@ def getlambdaStep(params, Age, bact_load, IndD, bet, demog):
     positions = []
     for i in range(len(Age)):
         a=np.array([0, 9 * 52, 15 * 52, demog['max_age'] * 52])
-        idx = bisect.bisect(x=Age[i], a) - 1
+        idx = bisect.bisect(x=Age[i], a=a) - 1
         positions.append(idx)
 
     return np.dot(social_mixing, prevLambda)[positions] * (0.5 + 0.5 * (1 - IndD))
