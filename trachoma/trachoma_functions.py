@@ -107,7 +107,11 @@ def getlambdaStep(params, Age, bact_load, IndD, bet, demog):
 
     # scales mixing with other groups
     social_mixing = (params['epsilon'] * np.diag(np.ones(3)) + (1 - params['epsilon'])) * demog_matrix
-    positions = [bisect.bisect(x=Age[i], a=np.array([0, 9 * 52, 15 * 52, demog['max_age'] * 52])) - 1 for i in range(len(Age))]
+    positions = []
+    for i in range(len(Age)):
+        a=np.array([0, 9 * 52, 15 * 52, demog['max_age'] * 52])
+        idx = bisect.bisect(x=Age[i], a) - 1
+        positions.append(idx)
 
     return np.dot(social_mixing, prevLambda)[positions] * (0.5 + 0.5 * (1 - IndD))
 
