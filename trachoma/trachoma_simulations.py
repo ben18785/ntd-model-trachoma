@@ -317,7 +317,7 @@ def Trachoma_Simulation(BetFilePath, MDAFilePath, PrevFilePath, InfectFilePath, 
                 return out
 
         # run simulations
-        num_cores = multiprocessing.cpu_count()
+        num_cores = 1
 
         start_time = time.time()
 
