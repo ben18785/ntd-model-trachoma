@@ -1,5 +1,6 @@
 import numpy as np
 import bisect
+A_PRECOMPUTE=np.array([0, 9 * 52, 15 * 52, 3120 * 52])
 
 def stepF_fixed(vals, params, demog, bet):
 
@@ -109,8 +110,7 @@ def getlambdaStep(params, Age, bact_load, IndD, bet, demog):
     social_mixing = (params['epsilon'] * np.diag(np.ones(3)) + (1 - params['epsilon'])) * demog_matrix
     positions = []
     for i in range(len(Age)):
-        a=np.array([0, 9 * 52, 15 * 52, demog['max_age'] * 52])
-        idx = bisect.bisect(x=Age[i], a=a) - 1
+        idx = bisect.bisect(x=Age[i], a=A_PRECOMPUTE) - 1
         positions.append(idx)
 
     return np.dot(social_mixing, prevLambda)[positions] * (0.5 + 0.5 * (1 - IndD))
