@@ -58,11 +58,11 @@ The resultant code took ~475s to run. The runtime was dominated by time spent in
 
 ![alt text](full_profile.png "Title")
 
-This indicates that the bulk of time is spent in the `stepF_fixed` function (~463s), and, within this, the majority of time was spent in `getlambdaStep` (~427s). Interestingly, within the latter function, over 90% of runtime was spent on a single line (line 110 of `trachoma_functions`):
+This indicates that the bulk of time was spent in the `stepF_fixed` function (~463s), and, within this, the majority of time was spent in `getlambdaStep` (~427s). Interestingly, within the latter function, over 90% of runtime was spent on a single line (line 110 of `trachoma_functions`):
 
 `positions = [bisect.bisect(x=Age[i], a=np.array([0, 9 * 52, 15 * 52, demog['max_age'] * 52])) - 1 for i in range(len(Age))]`
 
-When we examine the profiling a little further, we find that this line was called 243,900 times throughout the simulation.
+When we examine the profiling a little further, we found that this line was called 243,900 times throughout the simulation.
 
 Our first question was, what does this line do? To answer this, we unwrapped the list comprehension into a standard for loop:
 
@@ -74,7 +74,7 @@ for i in range(len(Age)):
     positions.append(idx)
 ```
 
-The above creates a new list `positions` which is a mapping to `Age`. Elements of `positions` are `0`, `1` or `2` depending on whether the corresponding `Age` value is within a given age group (0-9yo, 9-15yo, above 15yo).
+The above creates a new list `positions` which is a mapping to a binned version of `Age`. Elements of `positions` are `0`, `1` or `2` depending on whether the corresponding `Age` value is within a given age group (0-9yo, 9-15yo, above 15yo).
 
 (Apart from speed considerations, one thing worth noting here is that `demog['max_age']=3120`. Taking $3120 / 52=60$, we obtain (presumably) 60 years. Thus it appears that multiplying by 52 *could* be a code bug.)  
 
@@ -82,7 +82,7 @@ Further profiling showed that creating the np array is costly, followed by the c
 
 ## Code improvements
 
-In order to suggest speed ups, we sought to understand what `bisect` did. Reading its documentation, it is clear that it takes as argument a number being queried and it then determines the "bin" which that value sits. So here, an alternative way to write the same function is:
+An alternative way to write the same loop is:
 
 ```python
 positions = []
@@ -206,3 +206,9 @@ The results were as follows:
 * Map: mean runtime of 1.18s (95% quantiles: 1.14-1.25s)
 
 This meant that the new code represented roughly a 3X speed up versus the original.
+
+
+
+# Future work
+
+In benchmarking the optimised version of the code, it is clear that the bulk of computational time is still spent in the `getLambdaStep` function. As such, it is possible that further optimisations could be made to this function which boosted performance. It was, however, difficult to do so without understanding how the wider code functions, which would take more time.
